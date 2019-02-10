@@ -1,0 +1,4 @@
+// Comment
+var language = "bazic";
+var num = 5.609;
+var titi = -123.56.test();
