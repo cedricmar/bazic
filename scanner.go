@@ -150,6 +150,17 @@ func (s *Scanner) advance() byte {
 	return s.source[s.current-1]
 }
 
+func (s *Scanner) match(expected string) bool {
+	if s.isAtEnd() {
+		return false
+	}
+	if s.source[s.current] != expected[0] {
+		return false
+	}
+	s.current++
+	return true
+}
+
 func (s *Scanner) peek() string {
 	if s.isAtEnd() {
 		return "\000"
@@ -217,17 +228,6 @@ func (s *Scanner) identifier() {
 		tt = IDENTIFIER
 	}
 	s.addToken(tt)
-}
-
-func (s *Scanner) match(expected string) bool {
-	if s.isAtEnd() {
-		return false
-	}
-	if s.source[s.current] != expected[0] {
-		return false
-	}
-	s.current++
-	return true
 }
 
 func (s Scanner) isDigit(c string) bool {
