@@ -1,13 +1,17 @@
-package main
+package scanner
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Scanner struct {
-	source  string
-	tokens  []Token
-	start   int
-	current int
-	line    int
+	source   string
+	tokens   []Token
+	start    int
+	current  int
+	line     int
+	HadError bool
 }
 
 var keywords = map[string]TokenType{
@@ -30,7 +34,7 @@ var keywords = map[string]TokenType{
 }
 
 func NewScanner(source string) Scanner {
-	return Scanner{source, []Token{}, 0, 0, 1}
+	return Scanner{source, []Token{}, 0, 0, 1, false}
 }
 
 func (s *Scanner) ScanTokens() []Token {
@@ -130,7 +134,7 @@ func (s *Scanner) scanToken() {
 		} else if s.isAlpha(c) {
 			s.identifier()
 		} else {
-			Error(s.line, "Unexpected character.")
+			s.Error(s.line, "Unexpected character.")
 		}
 		break
 	}
@@ -185,7 +189,7 @@ func (s *Scanner) string() {
 
 	// We never reached another "
 	if s.isAtEnd() {
-		Error(s.line, "Unterminated string.")
+		s.Error(s.line, "Unterminated string.")
 		return
 	}
 
@@ -212,7 +216,7 @@ func (s *Scanner) number() {
 
 	num, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
 	if err != nil {
-		Error(s.line, "Could not convert to number.")
+		s.Error(s.line, "Could not convert to number.")
 		return
 	}
 	s.addToken(NUMBER, num)
@@ -246,4 +250,14 @@ func (s Scanner) isAlphaNumeric(c string) bool {
 
 func (s Scanner) isAtEnd() bool {
 	return s.current >= len(s.source)
+}
+
+// Error spits out failures in the program
+func (s *Scanner) Error(line int, message string) {
+	s.report(line, "", message)
+}
+
+func (s *Scanner) report(line int, where, message string) {
+	fmt.Printf("[line \"%d\"] Error %s: %s\n", line, where, message)
+	s.HadError = true
 }
