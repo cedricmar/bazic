@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"go/format"
 	"os"
 	"strings"
 )
@@ -50,7 +51,13 @@ func defineAst(outputDir, baseName string, types []string) error {
 	}
 	defer f.Close()
 
-	_, err = f.Write(buf.Bytes())
+	// Format
+	src, err := format.Source(buf.Bytes())
+	if err != nil {
+		return err
+	}
+
+	_, err = f.Write(src)
 	if err != nil {
 		return err
 	}
