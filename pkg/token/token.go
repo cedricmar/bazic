@@ -1,18 +1,18 @@
-package scanner
+package token
 
 import "fmt"
 
 type Token struct {
-	tokenType TokenType
+	TokenType TokenType
 	Lexeme    string
-	literal   interface{}
-	line      int
+	Literal   interface{}
+	Line      int
 }
 
 func NewToken(tokenType TokenType, lexeme string, literal interface{}, line int) Token {
 	return Token{tokenType, lexeme, literal, line}
 }
 
-func (t Token) toString() string {
-	return fmt.Sprintf("%d %s %v\n", t.tokenType, t.Lexeme, t.literal)
+func (tok Token) toString() string {
+	return fmt.Sprintf("%d %s %v\n", tok.TokenType, tok.Lexeme, tok.Literal)
 }

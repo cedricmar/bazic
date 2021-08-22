@@ -3,47 +3,49 @@ package scanner
 import (
 	"fmt"
 	"strconv"
+
+	tok "github.com/cedricmar/bazic/pkg/token"
 )
 
 type Scanner struct {
 	source   string
-	tokens   []Token
+	tokens   []tok.Token
 	start    int
 	current  int
 	line     int
 	HadError bool
 }
 
-var keywords = map[string]TokenType{
-	"and":    AND,
-	"class":  CLASS,
-	"else":   ELSE,
-	"false":  FALSE,
-	"for":    FOR,
-	"fun":    FUN,
-	"if":     IF,
-	"nil":    NIL,
-	"or":     OR,
-	"print":  PRINT,
-	"return": RETURN,
-	"super":  SUPER,
-	"this":   THIS,
-	"true":   TRUE,
-	"var":    VAR,
-	"while":  WHILE,
+var keywords = map[string]tok.TokenType{
+	"and":    tok.AND,
+	"class":  tok.CLASS,
+	"else":   tok.ELSE,
+	"false":  tok.FALSE,
+	"for":    tok.FOR,
+	"fun":    tok.FUN,
+	"if":     tok.IF,
+	"nil":    tok.NIL,
+	"or":     tok.OR,
+	"print":  tok.PRINT,
+	"return": tok.RETURN,
+	"super":  tok.SUPER,
+	"this":   tok.THIS,
+	"true":   tok.TRUE,
+	"var":    tok.VAR,
+	"while":  tok.WHILE,
 }
 
 func NewScanner(source string) Scanner {
-	return Scanner{source, []Token{}, 0, 0, 1, false}
+	return Scanner{source, []tok.Token{}, 0, 0, 1, false}
 }
 
-func (s *Scanner) ScanTokens() []Token {
+func (s *Scanner) ScanTokens() []tok.Token {
 	for !s.isAtEnd() {
 		s.start = s.current
 		s.scanToken()
 	}
 
-	s.tokens = append(s.tokens, Token{EOF, "", "", s.line})
+	s.tokens = append(s.tokens, tok.Token{tok.EOF, "", "", s.line})
 	return s.tokens
 }
 
@@ -51,60 +53,60 @@ func (s *Scanner) scanToken() {
 	c := string(s.advance())
 	switch c {
 	case "(":
-		s.addToken(LEFT_PAREN)
+		s.addToken(tok.LEFT_PAREN)
 		break
 	case ")":
-		s.addToken(RIGHT_PAREN)
+		s.addToken(tok.RIGHT_PAREN)
 		break
 	case "{":
-		s.addToken(LEFT_BRACE)
+		s.addToken(tok.LEFT_BRACE)
 		break
 	case "}":
-		s.addToken(RIGHT_BRACE)
+		s.addToken(tok.RIGHT_BRACE)
 		break
 	case ",":
-		s.addToken(COMMA)
+		s.addToken(tok.COMMA)
 		break
 	case ".":
-		s.addToken(DOT)
+		s.addToken(tok.DOT)
 		break
 	case "-":
-		s.addToken(MINUS)
+		s.addToken(tok.MINUS)
 		break
 	case "+":
-		s.addToken(PLUS)
+		s.addToken(tok.PLUS)
 		break
 	case ";":
-		s.addToken(SEMICOLON)
+		s.addToken(tok.SEMICOLON)
 		break
 	case "*":
-		s.addToken(STAR)
+		s.addToken(tok.STAR)
 		break
 	case "!":
-		b := BANG
+		b := tok.BANG
 		if s.match("=") {
-			b = BANG_EQUAL
+			b = tok.BANG_EQUAL
 		}
 		s.addToken(b)
 		break
 	case "=":
-		e := EQUAL
+		e := tok.EQUAL
 		if s.match("=") {
-			e = EQUAL_EQUAL
+			e = tok.EQUAL_EQUAL
 		}
 		s.addToken(e)
 		break
 	case "<":
-		l := LESS
+		l := tok.LESS
 		if s.match("=") {
-			l = LESS_EQUAL
+			l = tok.LESS_EQUAL
 		}
 		s.addToken(l)
 		break
 	case ">":
-		g := GREATER
+		g := tok.GREATER
 		if s.match("=") {
-			g = GREATER_EQUAL
+			g = tok.GREATER_EQUAL
 		}
 		s.addToken(g)
 		break
@@ -114,7 +116,7 @@ func (s *Scanner) scanToken() {
 				s.advance()
 			}
 		} else {
-			s.addToken(SLASH)
+			s.addToken(tok.SLASH)
 		}
 		break
 	case " ":
@@ -140,13 +142,13 @@ func (s *Scanner) scanToken() {
 	}
 }
 
-func (s *Scanner) addToken(tokenType TokenType, literals ...interface{}) {
+func (s *Scanner) addToken(tokenType tok.TokenType, literals ...interface{}) {
 	text := s.source[s.start:s.current]
 	var literal interface{}
 	if literals != nil {
 		literal = literals[0]
 	}
-	s.tokens = append(s.tokens, Token{tokenType, text, literal, s.line})
+	s.tokens = append(s.tokens, tok.Token{tokenType, text, literal, s.line})
 }
 
 func (s *Scanner) advance() byte {
@@ -198,7 +200,7 @@ func (s *Scanner) string() {
 
 	// Get the whole string at once
 	str := s.source[s.start+1 : s.current-1]
-	s.addToken(STRING, str)
+	s.addToken(tok.STRING, str)
 }
 
 func (s *Scanner) number() {
@@ -219,7 +221,7 @@ func (s *Scanner) number() {
 		s.Error(s.line, "Could not convert to number.")
 		return
 	}
-	s.addToken(NUMBER, num)
+	s.addToken(tok.NUMBER, num)
 }
 
 func (s *Scanner) identifier() {
@@ -229,7 +231,7 @@ func (s *Scanner) identifier() {
 	txt := s.source[s.start:s.current]
 	tt, found := keywords[txt]
 	if !found {
-		tt = IDENTIFIER
+		tt = tok.IDENTIFIER
 	}
 	s.addToken(tt)
 }
