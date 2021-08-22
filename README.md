@@ -2,6 +2,20 @@
 
 An interpreted programming language written in Go
 
+### How to use
+
+Compile
+
+```$ go build github.com/cedricmar/bazic/cmd/bazic```
+
+Running a program
+
+```$ ./bazic file.bz```
+
+Run from prompt
+
+```$ ./bazic```
+
 ## Tooling
 
 ### Generating AST
@@ -12,4 +26,4 @@ Use to generate expressions types
 
 Then run
 
-```$ generate_ast```
+```$ ./generate_ast```
