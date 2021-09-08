@@ -45,7 +45,12 @@ func (s *Scanner) ScanTokens() []tok.Token {
 		s.scanToken()
 	}
 
-	s.tokens = append(s.tokens, tok.Token{tok.EOF, "", "", s.line})
+	s.tokens = append(s.tokens, tok.Token{
+		TokenType: tok.EOF,
+		Lexeme:    "",
+		Literal:   "",
+		Line:      s.line,
+	})
 	return s.tokens
 }
 
@@ -148,7 +153,12 @@ func (s *Scanner) addToken(tokenType tok.TokenType, literals ...interface{}) {
 	if literals != nil {
 		literal = literals[0]
 	}
-	s.tokens = append(s.tokens, tok.Token{tokenType, text, literal, s.line})
+	s.tokens = append(s.tokens, tok.Token{
+		TokenType: tokenType,
+		Lexeme:    text,
+		Literal:   literal,
+		Line:      s.line,
+	})
 }
 
 func (s *Scanner) advance() byte {
@@ -256,10 +266,19 @@ func (s Scanner) isAtEnd() bool {
 
 // Error spits out failures in the program
 func (s *Scanner) Error(line int, message string) {
-	s.report(line, "", message)
+	s.Report(line, "", message)
 }
 
-func (s *Scanner) report(line int, where, message string) {
+func (s *Scanner) Report(line int, where, message string) {
 	fmt.Printf("[line \"%d\"] Error %s: %s\n", line, where, message)
 	s.HadError = true
+}
+
+func Error(t tok.Token, msg string) {
+	s := Scanner{}
+	if t.TokenType == tok.EOF {
+		s.Report(t.Line, "at end", msg)
+	} else {
+		s.Report(t.Line, "at '"+t.Lexeme+"'", msg)
+	}
 }

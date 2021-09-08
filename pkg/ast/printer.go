@@ -8,6 +8,10 @@ import (
 // Printer is a "pretty printer" for an AST
 type Printer struct{}
 
+func NewPrinter() Printer {
+	return Printer{}
+}
+
 func (p Printer) Print(e Expr) string {
 	return fmt.Sprintf("%s", e.Accept(p))
 }

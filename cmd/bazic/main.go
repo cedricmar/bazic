@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/cedricmar/bazic/pkg/ast"
 	"github.com/cedricmar/bazic/pkg/scanner"
 )
 
@@ -54,8 +55,15 @@ func RunPrompt() {
 func run(sc scanner.Scanner) {
 	tokens := sc.ScanTokens()
 
-	// For now, just print the tokens.
-	for _, t := range tokens {
-		fmt.Println(t)
+	p := ast.NewParser(tokens)
+	expr, err := p.Parse()
+	if err != nil {
+		fmt.Println(err)
 	}
+
+	if sc.HadError {
+		return
+	}
+
+	fmt.Println(ast.NewPrinter().Print(expr))
 }
